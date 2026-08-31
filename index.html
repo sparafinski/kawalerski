@@ -1,0 +1,395 @@
+<title>Kalkulator Rachunku</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Karla:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap');
+
+  :root{
+    --board:#1c2b25;
+    --board-2:#223529;
+    --chalk:#eee7d8;
+    --chalk-dim:#b9c2b7;
+    --rule:#3c4d40;
+    --mustard:#e0aa4e;
+    --mustard-soft:#e0aa4e33;
+    --brick:#d97a5b;
+    --brick-soft:#d97a5b26;
+    --focus:#f2d18a;
+  }
+
+  *{ box-sizing:border-box; }
+  body{
+    margin:0;
+    background:
+      radial-gradient(ellipse 900px 500px at 15% -10%, #24382c 0%, transparent 60%),
+      radial-gradient(ellipse 700px 600px at 110% 20%, #20302688 0%, transparent 55%),
+      var(--board);
+    color:var(--chalk);
+    font-family:'Karla', ui-sans-serif, system-ui, sans-serif;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    padding:36px 16px 120px;
+  }
+
+  /* faint chalk grain */
+  body::before{
+    content:"";
+    position:fixed; inset:0; pointer-events:none; z-index:0;
+    opacity:.5; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='matrix' values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.06 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+
+  .board{
+    position:relative; z-index:1;
+    width:100%; max-width:560px;
+  }
+
+  header{
+    text-align:center;
+    margin-bottom:28px;
+  }
+  header .kicker{
+    display:block;
+    font-family:'Karla',sans-serif;
+    font-size:11.5px;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:var(--mustard);
+    margin-bottom:8px;
+    font-weight:600;
+  }
+  h1{
+    font-family:'Caveat',cursive;
+    font-weight:700;
+    font-size:52px;
+    line-height:1;
+    margin:0;
+    color:var(--chalk);
+    text-wrap:balance;
+  }
+  header p{
+    margin:10px 0 0;
+    color:var(--chalk-dim);
+    font-size:14.5px;
+  }
+
+  .section{
+    margin-bottom:26px;
+  }
+  .section-title{
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--mustard);
+    padding-bottom:8px;
+    margin-bottom:4px;
+    border-bottom:1px dashed var(--rule);
+  }
+
+  .item{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    padding:11px 2px;
+    border-bottom:1px solid var(--rule);
+  }
+  .item:last-child{ border-bottom:none; }
+
+  .item-info{
+    flex:1;
+    min-width:0;
+  }
+  .item-name{
+    font-size:15px;
+    font-weight:500;
+    color:var(--chalk);
+    line-height:1.35;
+  }
+  .item-price{
+    font-family:'JetBrains Mono', ui-monospace, monospace;
+    font-size:12.5px;
+    color:var(--chalk-dim);
+    margin-top:2px;
+    font-variant-numeric:tabular-nums;
+  }
+
+  .stepper{
+    display:flex;
+    align-items:center;
+    gap:0;
+    background:#00000024;
+    border:1px solid var(--rule);
+    border-radius:8px;
+    overflow:hidden;
+    flex-shrink:0;
+  }
+  .stepper button{
+    width:32px; height:32px;
+    display:flex; align-items:center; justify-content:center;
+    background:transparent;
+    border:none;
+    color:var(--chalk);
+    font-size:17px;
+    font-family:'Karla',sans-serif;
+    cursor:pointer;
+    line-height:1;
+    transition:background .12s ease, color .12s ease;
+  }
+  .stepper button:hover{ background:var(--mustard-soft); color:var(--mustard); }
+  .stepper button:focus-visible{ outline:2px solid var(--focus); outline-offset:-2px; }
+  .stepper button:active{ background:var(--brick-soft); }
+  .stepper .qty{
+    width:30px;
+    text-align:center;
+    font-family:'JetBrains Mono', ui-monospace, monospace;
+    font-size:14px;
+    font-weight:600;
+    color:var(--chalk);
+    font-variant-numeric:tabular-nums;
+    user-select:none;
+  }
+  .item.active .qty{ color:var(--mustard); }
+  .item.active .item-name{ color:var(--mustard); }
+
+  /* receipt */
+  .receipt{
+    margin-top:8px;
+    padding:16px 4px 4px;
+    border-top:2px dashed var(--rule);
+  }
+  .receipt-title{
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--chalk-dim);
+    margin-bottom:10px;
+  }
+  .receipt-empty{
+    font-size:13.5px;
+    color:var(--chalk-dim);
+    font-style:italic;
+  }
+  .receipt-row{
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    font-size:13.5px;
+    padding:4px 0;
+    color:var(--chalk-dim);
+  }
+  .receipt-row span:first-child{ color:var(--chalk); }
+  .receipt-row .sum{
+    font-family:'JetBrains Mono', ui-monospace, monospace;
+    font-variant-numeric:tabular-nums;
+    color:var(--chalk-dim);
+  }
+
+  .totalbar{
+    position:fixed;
+    left:0; right:0; bottom:0;
+    display:flex;
+    justify-content:center;
+    padding:14px 16px calc(14px + env(safe-area-inset-bottom));
+    background:linear-gradient(to top, var(--board) 55%, transparent);
+    z-index:2;
+  }
+  .totalcard{
+    width:100%; max-width:560px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    background:var(--board-2);
+    border:1px solid var(--rule);
+    border-radius:14px;
+    padding:14px 18px;
+    box-shadow:0 10px 30px -12px #000a;
+  }
+  .totalcard .label{
+    font-size:12px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--chalk-dim);
+    font-weight:600;
+  }
+  .totalcard .amount{
+    font-family:'JetBrains Mono', ui-monospace, monospace;
+    font-size:30px;
+    font-weight:700;
+    color:var(--mustard);
+    font-variant-numeric:tabular-nums;
+    text-shadow:0 0 22px var(--mustard-soft);
+  }
+  .totalcard .reset{
+    background:transparent;
+    border:1px solid var(--rule);
+    color:var(--chalk-dim);
+    font-family:'Karla',sans-serif;
+    font-size:12.5px;
+    font-weight:600;
+    padding:9px 13px;
+    border-radius:9px;
+    cursor:pointer;
+    white-space:nowrap;
+    transition:border-color .12s ease, color .12s ease;
+  }
+  .totalcard .reset:hover{ border-color:var(--brick); color:var(--brick); }
+  .totalcard .reset:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+
+  @media (prefers-reduced-motion: no-preference){
+    .stepper button, .totalcard .reset{ transition-duration:.15s; }
+  }
+</style>
+
+<div class="board">
+  <header>
+    <span class="kicker">Rozliczenie stolika</span>
+    <h1>Ile mam przelac?</h1>
+    <p>Zaznacz, co jadles i piles - kwota do przelewu liczy sie sama.</p>
+  </header>
+
+  <div id="menu"></div>
+
+  <div class="receipt">
+    <div class="receipt-title">Twoje zamowienie</div>
+    <div id="receipt-body"></div>
+  </div>
+</div>
+
+<div class="totalbar">
+  <div class="totalcard">
+    <div>
+      <div class="label">Do przelania</div>
+      <div class="amount" id="total">0 zl</div>
+    </div>
+    <button class="reset" id="reset" type="button">Wyczysc</button>
+  </div>
+</div>
+
+<script>
+  const MENU = [
+    { section: "Dania glowne", items: [
+      ["Kotlet szwajcarski z szynka i serem", 44],
+      ["Piers z kurczaka z pomidorem, zapiekana", 46],
+      ["Piers z kurczaka panierowana w panko", 42],
+      ["Tradycyjny kotlet schabowy podany z puree", 49],
+      ["Burger Classic z frytkami", 44],
+      ["Zraz staropolski z wieprzowiny z pyzami", 46],
+      ["Konfitowane udko z kaczki podane z pyzami", 56],
+    ]},
+    { section: "Napoje", items: [
+      ["Piwo", 12],
+      ["Coca-Cola", 7],
+    ]},
+    { section: "Desery", items: [
+      ["Szarlotka", 28],
+      ["Fondant czekoladowy", 25],
+    ]},
+    { section: "Kawa", items: [
+      ["Cappuccino", 14],
+      ["Kawa z mlekiem", 14],
+      ["Kawa czarna", 12],
+      ["Kawa podwojne espresso", 18],
+    ]},
+  ];
+
+  const state = new Map(); // key -> qty
+  const menuEl = document.getElementById('menu');
+  const receiptEl = document.getElementById('receipt-body');
+  const totalEl = document.getElementById('total');
+
+  function fmt(n){
+    return n.toLocaleString('pl-PL', { maximumFractionDigits: 2 }) + ' zl';
+  }
+
+  MENU.forEach((group, gi) => {
+    const section = document.createElement('div');
+    section.className = 'section';
+
+    const title = document.createElement('div');
+    title.className = 'section-title';
+    title.textContent = group.section;
+    section.appendChild(title);
+
+    group.items.forEach(([name, price], ii) => {
+      const key = gi + '-' + ii;
+      state.set(key, 0);
+
+      const row = document.createElement('div');
+      row.className = 'item';
+      row.dataset.key = key;
+
+      row.innerHTML = `
+        <div class="item-info">
+          <div class="item-name">${name}</div>
+          <div class="item-price">${fmt(price)}</div>
+        </div>
+        <div class="stepper">
+          <button type="button" data-action="dec" aria-label="Zmniejsz liczbe: ${name}">-</button>
+          <span class="qty" data-role="qty">0</span>
+          <button type="button" data-action="inc" aria-label="Zwieksz liczbe: ${name}">+</button>
+        </div>
+      `;
+
+      row.querySelector('[data-action="inc"]').addEventListener('click', () => setQty(key, state.get(key) + 1, name, price));
+      row.querySelector('[data-action="dec"]').addEventListener('click', () => setQty(key, Math.max(0, state.get(key) - 1), name, price));
+
+      section.appendChild(row);
+    });
+
+    menuEl.appendChild(section);
+  });
+
+  const items = new Map(); // key -> {name, price, rowEl, qtyEl}
+  document.querySelectorAll('.item').forEach(row => {
+    const key = row.dataset.key;
+    const name = row.querySelector('.item-name').textContent;
+    items.set(key, { rowEl: row, qtyEl: row.querySelector('[data-role="qty"]') });
+  });
+
+  const PRICES = new Map();
+  MENU.forEach((group, gi) => group.items.forEach(([name, price], ii) => PRICES.set(gi + '-' + ii, { name, price })));
+
+  function setQty(key, qty, name, price){
+    state.set(key, qty);
+    const { rowEl, qtyEl } = items.get(key);
+    qtyEl.textContent = qty;
+    rowEl.classList.toggle('active', qty > 0);
+    render();
+  }
+
+  function render(){
+    let total = 0;
+    const rows = [];
+    for (const [key, qty] of state){
+      if (qty <= 0) continue;
+      const { name, price } = PRICES.get(key);
+      total += price * qty;
+      rows.push({ name, qty, sum: price * qty });
+    }
+
+    totalEl.textContent = fmt(total);
+
+    if (rows.length === 0){
+      receiptEl.innerHTML = '<div class="receipt-empty">Jeszcze nic nie wybrano.</div>';
+      return;
+    }
+
+    receiptEl.innerHTML = rows.map(r => `
+      <div class="receipt-row">
+        <span>${r.qty}x ${r.name}</span>
+        <span class="sum">${fmt(r.sum)}</span>
+      </div>
+    `).join('');
+  }
+
+  document.getElementById('reset').addEventListener('click', () => {
+    for (const key of state.keys()){
+      const { name, price } = PRICES.get(key);
+      setQty(key, 0, name, price);
+    }
+  });
+
+  render();
+</script>
