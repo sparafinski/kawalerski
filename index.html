@@ -1,3 +1,10 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#1c2b25">
 <title>Kalkulator Rachunku</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Karla:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap');
@@ -15,7 +22,8 @@
     --focus:#f2d18a;
   }
 
-  *{ box-sizing:border-box; }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html{ -webkit-text-size-adjust:100%; }
   body{
     margin:0;
     background:
@@ -60,7 +68,7 @@
   h1{
     font-family:'Caveat',cursive;
     font-weight:700;
-    font-size:52px;
+    font-size:clamp(38px, 10vw, 52px);
     line-height:1;
     margin:0;
     color:var(--chalk);
@@ -89,8 +97,8 @@
   .item{
     display:flex;
     align-items:center;
-    gap:14px;
-    padding:11px 2px;
+    gap:10px;
+    padding:12px 2px;
     border-bottom:1px solid var(--rule);
   }
   .item:last-child{ border-bottom:none; }
@@ -124,22 +132,25 @@
     flex-shrink:0;
   }
   .stepper button{
-    width:32px; height:32px;
+    width:44px; height:44px;
     display:flex; align-items:center; justify-content:center;
     background:transparent;
     border:none;
     color:var(--chalk);
-    font-size:17px;
+    font-size:19px;
     font-family:'Karla',sans-serif;
     cursor:pointer;
     line-height:1;
+    touch-action:manipulation;
+    user-select:none;
+    -webkit-touch-callout:none;
     transition:background .12s ease, color .12s ease;
   }
   .stepper button:hover{ background:var(--mustard-soft); color:var(--mustard); }
   .stepper button:focus-visible{ outline:2px solid var(--focus); outline-offset:-2px; }
   .stepper button:active{ background:var(--brick-soft); }
   .stepper .qty{
-    width:30px;
+    width:28px;
     text-align:center;
     font-family:'JetBrains Mono', ui-monospace, monospace;
     font-size:14px;
@@ -215,7 +226,7 @@
   }
   .totalcard .amount{
     font-family:'JetBrains Mono', ui-monospace, monospace;
-    font-size:30px;
+    font-size:clamp(22px, 7vw, 30px);
     font-weight:700;
     color:var(--mustard);
     font-variant-numeric:tabular-nums;
@@ -228,10 +239,13 @@
     font-family:'Karla',sans-serif;
     font-size:12.5px;
     font-weight:600;
-    padding:9px 13px;
+    padding:12px 15px;
+    min-height:44px;
     border-radius:9px;
     cursor:pointer;
     white-space:nowrap;
+    touch-action:manipulation;
+    -webkit-touch-callout:none;
     transition:border-color .12s ease, color .12s ease;
   }
   .totalcard .reset:hover{ border-color:var(--brick); color:var(--brick); }
@@ -240,7 +254,14 @@
   @media (prefers-reduced-motion: no-preference){
     .stepper button, .totalcard .reset{ transition-duration:.15s; }
   }
+
+  @media (max-width:380px){
+    body{ padding:24px 10px 132px; }
+    .totalcard{ padding:12px 14px; }
+  }
 </style>
+</head>
+<body>
 
 <div class="board">
   <header>
@@ -393,3 +414,6 @@
 
   render();
 </script>
+
+</body>
+</html>
